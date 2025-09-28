@@ -2,6 +2,7 @@
 name = "capture-scheduler"
 version = "0.1.0"
 edition = "2024"
+default-run = "capture-scheduler" 
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
@@ -10,4 +11,20 @@ uuid = { version = "1.8.0", features = ["v4"] }
 anyhow = "1.0.82"
 thiserror = "1.0.61"
 dirs = "5.0.1"
+xcap = "0.7.1"
+chrono = { version = "0.4.38", features = ["serde"] }
+image = "0.25.1"
+job_scheduler_ng = "2.3.0"
+eframe = { version = "0.27.2", features = ["wgpu"] }
+egui = "0.27.2"
+rfd = "0.14.1"
+tray-icon = "0.21.1"
 
+[package.metadata.bundle]
+name = "Capture Scheduler"
+identifier = "com.yourname.capturescheduler"
+icon = ["assets/icon.jpg"]
+version = "0.1.0"
+category = "Utility"
+short_description = "A simple screenshot scheduling application."
+plist_path = "Info.plist"

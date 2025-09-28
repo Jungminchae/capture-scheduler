@@ -1,18 +1,16 @@
 use serde::{Deserialize, Serialize};
+use std::fs;
 use std::path::PathBuf;
-use std::{fs, io};
-use crate::error::AppError;
 
-// 화면 좌표를 저장하기 위한 구조체
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct Rect {
     pub x: i32,
     pub y: i32,
     pub width: u32,
     pub height: u32,
+    pub scale_factor: f32,
 }
 
-// hh:mm:ss 형식의 시간을 저장하기 위한 구조체
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ScheduleTime {
     pub hour: u32,
@@ -40,37 +38,27 @@ impl Default for Config {
     }
 }
 
-fn get_config_path() -> Result<PathBuf, AppError> {
-    let config_dir = dirs::config_dir()
-        .ok_or_else(|| AppError::Config("Could not find config directory".to_string()))?
-        .join("CaptureScheduler");
-
-    fs::create_dir_all(&config_dir)?;
-
-    Ok(config_dir.join("config.json"))
-}
-
 impl Config {
-    pub fn load() -> Result<Self, AppError> {
-        let path = get_config_path()?;
-        match fs::read_to_string(&path) {
-            Ok(s) => {
-                let config = serde_json::from_str(&s)?;
-                Ok(config)
-            }
-            Err(e) if e.kind() == io::ErrorKind::NotFound => {
-                let config = Config::default();
-                config.save()?;
-                Ok(config)
-            }
-            Err(e) => Err(AppError::Io(e)),
-        }
+    fn path() -> PathBuf {
+        let mut path = dirs::config_dir().unwrap_or_default();
+        path.push("CaptureScheduler");
+        fs::create_dir_all(&path).ok();
+        path.push("config.json");
+        path
     }
 
-    pub fn save(&self) -> Result<(), AppError> {
-        let path = get_config_path()?;
-        let s = serde_json::to_string_pretty(self)?;
-        fs::write(path, s)?;
-        Ok(())
+    pub fn save(&self) -> Result<(), std::io::Error> {
+        let json_str = serde_json::to_string_pretty(self)?;
+        fs::write(Self::path(), json_str)
+    }
+
+    pub fn load() -> Result<Self, std::io::Error> {
+        let path = Self::path();
+        if path.exists() {
+            let json_str = fs::read_to_string(path)?;
+            serde_json::from_str(&json_str).map_err(Into::into)
+        } else {
+            Ok(Self::default())
+        }
     }
 }

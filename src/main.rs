@@ -1,15 +1,19 @@
+mod app;
 mod config;
-mod error;
+mod scheduler;
 
-use crate::config::Config;
+use app::CaptureSchedulerApp;
+use eframe::NativeOptions;
 
-fn main() {
-    match Config::load() {
-        Ok(config) => {
-            println!("Config loaded successfully: {:#?}", config);
-        }
-        Err(e) => {
-            eprintln!("Failed to load config: {}", e);
-        }
-    }
+fn main() -> Result<(), eframe::Error> {
+    let native_options = NativeOptions {
+        run_and_return: true,
+        ..Default::default()
+    };
+
+    eframe::run_native(
+        "Capture Scheduler",
+        native_options,
+        Box::new(|cc| Box::new(CaptureSchedulerApp::new(cc))),
+    )
 }
