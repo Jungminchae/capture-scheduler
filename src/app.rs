@@ -230,7 +230,7 @@ impl CaptureSchedulerApp {
                         .split(':')
                         .map(|s| s.parse())
                         .collect();
-                    if parts.len() == 2 && parts.iter().all(|p| p.is_ok()) {
+                    if parts.len() == 3 && parts.iter().all(|p| p.is_ok()) {
                         let nums: Vec<u32> = parts.into_iter().map(|p| p.unwrap()).collect();
                         self.config.schedule_times.push(ScheduleTime {
                             hour: nums[0],
