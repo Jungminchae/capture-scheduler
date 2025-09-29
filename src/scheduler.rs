@@ -5,12 +5,12 @@ use xcap::Monitor;
 
 pub fn check_and_capture(config: &Config) {
     let now = Local::now();
-    let current_time_key = (now.hour(), now.minute());
+    let current_time_key = (now.hour(), now.minute(), now.second());
 
     for schedule in &config.schedule_times {
-        if (schedule.hour, schedule.minute) == current_time_key {
+        if (schedule.hour, schedule.minute, schedule.second) == current_time_key {
             perform_capture(config);
-            std::thread::sleep(std::time::Duration::from_secs(61));
+            std::thread::sleep(std::time::Duration::from_millis(1001));
             break;
         }
     }

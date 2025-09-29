@@ -77,7 +77,7 @@ impl CaptureSchedulerApp {
 
         Self {
             config: Config::load().unwrap_or_default(),
-            new_schedule_time: "HH:MM".to_string(),
+            new_schedule_time: "HH:MM:SS".to_string(),
             state: AppState::Hidden,
             selection_start_pos: None,
             selection_background: None,
@@ -205,11 +205,14 @@ impl CaptureSchedulerApp {
 
             ui.separator();
 
-            ui.label("Schedule Times (HH:MM)");
+            ui.label("Schedule Times (HH:MM:SS)");
             let mut to_remove = None;
             for (i, schedule) in self.config.schedule_times.iter().enumerate() {
                 ui.horizontal(|ui| {
-                    ui.label(format!("{:02}:{:02}", schedule.hour, schedule.minute));
+                    ui.label(format!(
+                        "{:02}:{:02}:{:02}",
+                        schedule.hour, schedule.minute, schedule.second
+                    ));
                     if ui.button("x").clicked() {
                         to_remove = Some(i);
                     }
@@ -232,9 +235,9 @@ impl CaptureSchedulerApp {
                         self.config.schedule_times.push(ScheduleTime {
                             hour: nums[0],
                             minute: nums[1],
-                            second: 0,
+                            second: nums[2],
                         });
-                        self.new_schedule_time = "HH:MM".to_string();
+                        self.new_schedule_time = "HH:MM:SS".to_string();
                     }
                 }
             });
