@@ -39,10 +39,10 @@ fn perform_capture(config: &Config) {
                         .to_image();
 
                     let now = Local::now();
-                    let timestamp = now.format("%Y-%m-%d_%H-%M-%S").to_string();
+                    let timestamp = now.format("%Y%m%d_%H시%M분").to_string();
                     let filename = match &config.base_filename {
                         Some(name) if !name.is_empty() => format!("{}_{}.png", name, timestamp),
-                        _ => format!("capture_{}.png", timestamp),
+                        _ => format!("{}_온라인_출석체크.png", timestamp),
                     };
                     let path = config.save_directory.join(filename);
 
