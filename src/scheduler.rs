@@ -1,6 +1,8 @@
 use crate::config::Config;
 use chrono::{Local, Timelike};
 use image::GenericImageView;
+use image::codecs::jpeg::JpegEncoder;
+use std::fs::File;
 use xcap::Monitor;
 
 pub fn check_and_capture(config: &Config) {
@@ -41,15 +43,23 @@ fn perform_capture(config: &Config) {
                     let now = Local::now();
                     let timestamp = now.format("%Y%m%d_%H시%M분").to_string();
                     let filename = match &config.base_filename {
-                        Some(name) if !name.is_empty() => format!("{}_{}.png", name, timestamp),
-                        _ => format!("{}_온라인_출석체크.png", timestamp),
+                        Some(name) if !name.is_empty() => format!("{}_{}.jpg", name, timestamp),
+                        _ => format!("{}_온라인_출석체크.jpg", timestamp),
                     };
                     let path = config.save_directory.join(filename);
 
-                    if cropped_image.save(&path).is_ok() {
-                        println!("Screenshot saved to {:?}", path);
+                    let file_out = match File::create(&path) {
+                        Ok(f) => f,
+                        Err(e) => {
+                            eprintln!("Failed to create file {:?}: {}", path, e);
+                            return;
+                        }
+                    };
+                    let mut encoder = JpegEncoder::new_with_quality(file_out, 90);
+                    if encoder.encode_image(&cropped_image).is_ok() {
+                        println!("Captured and saved image to {:?}", path);
                     } else {
-                        eprintln!("Failed to save screenshot.");
+                        eprintln!("Failed to encode and save image to {:?}", path);
                     }
                 }
             }
