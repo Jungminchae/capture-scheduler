@@ -41,7 +41,11 @@ fn perform_capture(config: &Config) {
                         .to_image();
 
                     let now = Local::now();
-                    let timestamp = now.format("%Y%m%d_%H시%M분").to_string();
+                    let timestamp = if now.hour() >= 17 {
+                        now.format("%Y%m%d_%H시%M분%S초").to_string()
+                    } else {
+                        now.format("%Y%m%d_%H시%M분").to_string()
+                    };
                     let filename = match &config.base_filename {
                         Some(name) if !name.is_empty() => format!("{}_{}.jpg", name, timestamp),
                         _ => format!("{}_온라인_출석체크.jpg", timestamp),
